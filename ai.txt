@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /src/models/components/proxy_former*
+
+TDM-Reservation: 1
+Policy-Target: /src/models/components/proxy_former*
+Policy-Action: No-Training, No-Inference

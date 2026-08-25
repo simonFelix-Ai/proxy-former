@@ -1,0 +1,136 @@
+experiment_name: "proxy_former_img_mnist_jlt"
+
+ae_model:
+  module: "src.models.architectures.img.ae"
+  class_name: "ImageAe"
+  
+  d_enc_fine: 64
+  d_model_enc: 320
+  n_layers_enc: 8
+
+  d_dec_fine: 32
+  d_model_dec: 512
+  n_layers_dec: 12
+
+  latent_noise_enable: true
+  latent_h: 16
+  latent_w: 16
+  d_latent: 4
+
+  patch_size_per_proxy: 4
+  d_head: 64
+  dropout: 0.0
+  rope_enable: true
+
+  is_vae: false
+
+  weights:
+    license: "cc-by-nc-sa-4.0"
+    auto_download: true
+
+    source: "hf"  # hf, url 
+    
+    hf:
+      repo_id: "simonCat/proxy_former"
+      subpath: "proxy_former_img_mnist_jlt" # 仓库内的子目录或单文件路径
+      is_folder: true                       # true: 下载整个子目录; false: 下载单文件
+      use_mirror: false                      # 是否开启镜像加速
+      mirror_url: "https://hf-mirror.com"
+
+    # 如果 is_folder 为 false，可填入单文件的 sha256；若为 true 则设为 null
+    sha256: null
+      
+########################################
+data:
+  module: "src.dataset.data_loader_hf_img"
+  class_name: "data_loader_hf_img"
+
+  output_dir: "./out/dataset_cache/mnist/out/"
+  dataset_dir: "./out/dataset_cache/mnist/raw_ds/"
+
+  dataset_path: "ylecun/mnist"
+  dataset_name: "mnist"
+
+  inputs_key: "label"
+  targets_key: "image"
+
+  train_split: "train"
+  test_split: "test"
+
+  num_workers: 10
+
+  img_h: 32
+  img_w: 32
+  img_channels: 3
+
+  num_classes: 10
+
+########################################
+# Training configuration
+training:
+  module: "src.trainer.train_img_ae"
+  func: "train"
+
+  optimizer: "mano" # adamw or AdamW8bit
+  learning_rate: 2.0e-4
+  weight_decay: 0.01
+  beta1: 0.9
+  beta2: 0.98
+  grad_clip: 1.0
+
+  lr_scheduler:
+    type: "warmup_then_cosine" #"cosine"
+    
+    warmup_ratio: 0.06
+
+    min_lr: 1.0e-5
+
+  # Training loop
+  num_train_epochs: 10
+
+  # stride: 512
+  train_ratio: 1.0 
+  
+  gradient_accumulation: 1  # 梯度累积后的等效反向传播
+
+  #  BATCH_SIZE
+  per_device_train_batch_size: 128
+  
+  # Logging and saving
+  logging_steps: 10 # Log every accumulated step
+  save_tokens_ratio: 0.2 # SAVE_MODLE_STEPS
+  
+  
+  train_stage: "fm" # "ar" or "fm"
+
+eval:
+  module: "src.evaluator.eval_img_fm"
+  func: "evaluate"
+
+  eval_image_steps: 3000
+  sample_method: "euler"  # heun  euler
+  nfe_steps: 50
+  ig_scale: 1.0
+  max_batches: 200000
+
+  eval_ratio: 1.0 
+  per_device_eval_batch_size: 1024
+
+########################################
+# Profile
+profiler:
+  enable: false
+  log_dir: "out/profiler/"
+  wait: 16  # wait: 等待1步
+  warmup: 16  # warmup: 预热1步
+  active: 16  # active: 真正分析的3步
+  repeat: 4  # repeat: 重复2次这个周期    
+########################################
+
+
+# Hardware
+hardware:
+  device: "cuda"
+  autocast: true # true or false
+  compile: true # true or false
+  auto_eager: true # true or false

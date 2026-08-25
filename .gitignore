@@ -1,0 +1,12 @@
+dataset_cache/
+out/
+res/
+ARC/
+old/img_gen_demo
+*.jpg
+*.png
+*.Identifier
+datasets/
+*copy.py
+.vscode/
+__pycache__
