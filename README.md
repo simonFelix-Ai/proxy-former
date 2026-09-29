@@ -2,6 +2,8 @@
 
 # ProxyFormer
 
+arxiv: <https://arxiv.org/abs/2608.23463>
+
 > **Carry global interaction with extremely short "Proxy Tokens", making ultra-long sequences and high-resolution generation possible under limited compute.**
 
 ProxyFormer is a new neural network architecture designed for ultra-long sequences, high-resolution inputs, and long feature processing in arbitrary dimensions. It uniformly supports 1D text sequences, 2D images, 3D point clouds / voxels / spatio-temporal videos, and higher-dimensional tensors. By introducing the **Proxy Token** mechanism, it compresses long, high-resolution, or high-dimensional features into an extremely short proxy sequence and performs global attention interaction in the proxy feature space. This simultaneously reduces **computation** and **memory usage**, and natively supports **proxy-level KV Cache** acceleration. The entire architecture relies only on common operators such as rearrangement, linear projections, convolutions, and standard attention. It is simple to implement and does not require sparse indexers or custom CUDA kernels.
